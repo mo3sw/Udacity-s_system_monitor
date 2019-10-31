@@ -68,7 +68,30 @@ vector<int> LinuxParser::Pids() {
 
 // TODO: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() { 
+  string memTotalStr;
+  string memFreeStr;
+  long memTotal;
+  long memFree;
+  std::ifstream stream(kProcDirectory + kMeminfoFilename);
+  if(stream.is_open()){
+    std::getline(stream, memTotalStr);
+    std::getline(stream, memFreeStr);
+    // To seperate the number from the rest of the string
+    memTotal = SeperateMemInfoNumberFromStringHelperMethod(memTotalStr);
+    memFree = SeperateMemInfoNumberFromStringHelperMethod(memFreeStr);
+    
+    return (memTotal - memFree) / memTotal;
+    
+  }
   return 0.0; 
+}
+
+long LinuxParser::SeperateMemInfoNumberFromStringHelperMethod(string str){
+	int i = str.find_first_of("0123456789");
+	str = str.substr(i, str.size());
+	i = str.find(" ");
+	str = str.substr(0, i);
+    return atol(str.c_str());
 }
 
 // TODO: Read and return the system uptime
