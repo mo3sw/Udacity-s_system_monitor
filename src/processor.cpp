@@ -2,5 +2,5 @@
 
 // TODO: Return the aggregate CPU utilization
 float Processor::Utilization() { 
-  return (LinuxParser::ActiveJiffies() + 0.0000001 - 0.0000001) / (LinuxParser::Jiffies() + 0.0000001 - 0.0000001) * 100;
+  return ((float)LinuxParser::ActiveJiffies()) / ((float)LinuxParser::Jiffies()) * 100;
 }
