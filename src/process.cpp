@@ -22,7 +22,7 @@ string Process::Command() {
 }
 
 // TODO: Return this process's memory utilization
-string Process::Ram() { return string(); }
+string Process::Ram() { return LinuxParser::Ram(Pid()); }
 
 // TODO: Return the user (name) that generated this process
 string Process::User() { return string(); }
