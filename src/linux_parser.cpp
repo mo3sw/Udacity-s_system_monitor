@@ -119,24 +119,10 @@ long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
-  string line;
-  std::ifstream stream(kProcDirectory + kStatFilename);
-  if(stream.is_open()){
-    std::getline(stream, line);
-    std::size_t i = line.find(' ');
-    line = line.substr(i, line.size());
-    i = line.find(' ');
-    vector<string> vect;
-    while(i != string::npos){
-      vect.push_back(line.substr(0,i));
-      line = line.substr(i, line.size());
-      i = line.find(' ');
-    }
+  vector<string> vect = CpuUtilization();
+  if(vect.size() > 0){
     long active = 0;
-    for(int j=0; j<2; j++){
-      active += atol(vect[j].c_str());
-    }
-    active += atol(vect[5].c_str()) + atol(vect[6].c_str()) + atol(vect[7].c_str());
+    active += atol(vect[0].c_str()) + atol(vect[1].c_str()) + atol(vect[2].c_str()) + atol(vect[5].c_str()) + atol(vect[6].c_str()) + atol(vect[7].c_str());
     return active;
   }
   return -1;
@@ -144,19 +130,8 @@ long LinuxParser::ActiveJiffies() {
 
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() {
-  string line;
-  std::ifstream stream(kProcDirectory + kStatFilename);
-  if(stream.is_open()){
-    std::getline(stream, line);
-    std::size_t i = line.find(' ');
-    line = line.substr(i, line.size());
-    i = line.find(' ');
-    vector<string> vect;
-    while(i != string::npos){
-      vect.push_back(line.substr(0,i));
-      line = line.substr(i, line.size());
-      i = line.find(' ');
-    }
+  vector<string> vect = CpuUtilization();
+  if(vect.size() > 0){
     long active = 0;
     active += atol(vect[3].c_str()) + atol(vect[4].c_str());
     return active;
@@ -165,7 +140,24 @@ long LinuxParser::IdleJiffies() {
 }
 
 // TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<string> LinuxParser::CpuUtilization() {
+  string line;
+  std::ifstream stream(kProcDirectory + kStatFilename);
+  if(stream.is_open()){
+    std::getline(stream, line);
+    std::size_t i = line.find(' ');
+    line = line.substr(i, line.size());
+    i = line.find(' ');
+    vector<string> vect;
+    while(i != string::npos){
+      vect.push_back(line.substr(0,i));
+      line = line.substr(i, line.size());
+      i = line.find(' ');
+    }
+    return vect;
+  }
+  return {};
+}
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() { 
