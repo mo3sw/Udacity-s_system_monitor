@@ -83,7 +83,7 @@ float LinuxParser::MemoryUtilization() {
     return (memTotal - memFree) / memTotal;
     
   }
-  return 0.0; 
+  return -1.0; 
 }
 
 long LinuxParser::SeperateMemInfoNumberFromStringHelperMethod(string str){
@@ -199,7 +199,15 @@ int LinuxParser::RunningProcesses() {
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Command(int pid) { 
+  string line;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kCmdlineFilename);
+  if(stream.is_open()){
+    std::getline(stream, line);
+    return line;
+  }
+  return "-1";
+}
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
