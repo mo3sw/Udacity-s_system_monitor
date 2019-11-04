@@ -151,7 +151,7 @@ vector<string> LinuxParser::CpuUtilization() {
     vector<string> vect;
     while(i != string::npos){
       vect.push_back(line.substr(0,i));
-      line = line.substr(i, line.size());
+      line = line.substr(i+1, line.size());
       i = line.find(' ');
     }
     return vect;
