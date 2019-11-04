@@ -15,7 +15,10 @@ using std::string;
 using std::vector;
 
 // TODO: Return the system's CPU
-Processor& System::Cpu() { return cpu_; }
+Processor& System::Cpu() {
+  Processor cpu;
+  return cpu;
+}
 
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() {

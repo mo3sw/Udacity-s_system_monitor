@@ -80,9 +80,7 @@ float LinuxParser::MemoryUtilization() {
     // To seperate the number from the rest of the string
     memTotal = SeperateMemInfoNumberFromStringHelperMethod(memTotalStr);
     memFree = SeperateMemInfoNumberFromStringHelperMethod(memFreeStr);
-    
-    return (memTotal - memFree) / memTotal;
-    
+    return (float)(memTotal - memFree) / (float)memTotal;
   }
   return -1.0; 
 }
@@ -116,7 +114,47 @@ long LinuxParser::Jiffies() {
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::ActiveJiffies(int pid) {
+  long upTime = Jiffies();
+  string str;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if(stream.is_open()){
+    std::getline(stream, str);
+    for(int i=0; i<13; i++){
+      std::size_t found = str.find(" ");
+      if (found != std::string::npos){
+        str = str.substr(found+1, str.size());
+      }
+    }
+    vector<long> vect;
+    for(int i=0; i<4; i++){
+      std::size_t found = str.find(" ");
+      if (found != std::string::npos){
+        string str2 = str.substr(0, found);
+        vect.push_back(atol(str2.c_str()));
+        str = str.substr(found+1 , str.size());
+      }
+    }
+    for(int i=0; i<4; i++){
+      std::size_t found = str.find(" ");
+      if (found != std::string::npos){
+        str = str.substr(found+1 , str.size());
+      }
+    }
+    std::size_t found = str.find(" ");
+    if (found != std::string::npos){
+      string str2 = str.substr(0, found);
+      vect.push_back(atol(str2.c_str()));
+    }
+    long sum = 0;
+    for(int i=0; i<4; i++){
+      sum += vect[i];
+    }
+    long rtn = upTime - vect[4];
+    return sum;
+  }
+  return -1;
+}
 
 // TODO: Read and return the number of active jiffies for the system
 long LinuxParser::ActiveJiffies() {
@@ -147,7 +185,7 @@ vector<string> LinuxParser::CpuUtilization() {
   if(stream.is_open()){
     std::getline(stream, line);
     std::size_t i = line.find(' ');
-    line = line.substr(i, line.size());
+    line = line.substr(i+1, line.size());
     i = line.find(' ');
     vector<string> vect;
     while(i != string::npos){
