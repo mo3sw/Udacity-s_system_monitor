@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "linux_parser.h"
 
@@ -229,11 +230,43 @@ string LinuxParser::Ram(int pid) {
 
 // TODO: Read and return the user ID associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Uid(int pid) {
+  string str;
+  std::ifstream stream(kProcDirectory + to_string(pid) +kStatusFilename);
+  if(stream.is_open()){
+    while(stream.is_open()){
+      std::getline(stream, str);
+      std::size_t found = str.find("Uid");
+      if (found != std::string::npos){
+        int i = str.find_first_of("0123456789");
+        string rest = str.substr(i, str.size());
+        i = rest.find_first_of("\t");
+        str = rest.substr(0, i);
+        return str;
+      }
+  	}
+  }
+  return "-1"; 
+}
 
 // TODO: Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::User(int pid) {
+  string str;
+  std::ifstream stream(kPasswordPath);
+  string uid = Uid(pid);
+  if(stream.is_open()){
+    while(std::getline(stream, str)){
+      std::size_t found = str.find(":x:");
+      if (found != std::string::npos){
+        int i = str.find_first_of("0123456789");
+        string uidLine = str.substr(i, i+uid.size()-1);
+        return str.substr(0, found);
+      }
+  	}
+  }
+  return "-1"; 
+}
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
@@ -244,7 +277,7 @@ long LinuxParser::UpTime(int pid) {
     std::getline(stream, line);
     for(int i=0; i<21; i++){
       int j = line.find(' ');
-      line = line.substr(j, line.size());
+      line = line.substr(j+1, line.size());
     }
     int j = line.find(' ');
     line = line.substr(0, j);
